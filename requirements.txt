@@ -1,0 +1,21 @@
+# --- core (Phases 0-5, run fully offline / free) ---
+numpy
+opencv-python
+pillow
+imageio
+matplotlib
+pytest
+ruff
+
+# --- real models (Phase 6, Kaggle/Colab GPU only) ---
+# anthropic            # Claude debate + optional pipeline VLM
+# transformers         # Molmo-7B-D
+# torch                # provided by the Kaggle/Colab image
+# torchvision          # Molmo image processing
+# einops               # Molmo custom modeling code
+# accelerate           # device_map for large model loading
+# bitsandbytes         # 4-bit quantization (CUDA only)
+
+# --- optional UI ---
+# gradio>=4.0
+# imageio-ffmpeg   # H.264 demo-clip encoding so it previews in the Gradio video player

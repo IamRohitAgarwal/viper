@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+.env
+
+# data + run artifacts (keep the folders, ignore contents)
+data/videos/*
+data/frames/*
+outputs/*
+!**/.gitkeep

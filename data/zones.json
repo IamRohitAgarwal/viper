@@ -1,0 +1,10 @@
+{
+  "clip": "demo_topdown.mp4",
+  "places": {
+    "receiving bay": {"x": 0.10, "y": 0.15, "w": 0.10, "h": 0.10},
+    "dock 4":        {"x": 0.78, "y": 0.75, "w": 0.10, "h": 0.10}
+  },
+  "obstacles": [
+    {"name": "pallet stack", "x": 0.42, "y": 0.40, "w": 0.14, "h": 0.18}
+  ]
+}
