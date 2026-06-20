@@ -61,19 +61,56 @@ def build_debaters(config):
     return model_a, model_b
 
 
-def parse_goal(goal: str) -> tuple[str, str]:
-    """Parse a goal of the form 'from {place_a} to {place_b}'.
+_ARTICLE_RE = re.compile(r"^(?:the|a|an)\s+", re.IGNORECASE)
 
-    Falls back (per resolved Q5): if the string does not match, the whole
-    string is treated as the destination (place_b) and the start (place_a)
-    is left empty for the runner to default to the image centre.
+# "go/move to Y" (no object): destination only.
+_DEST_ONLY_RE = re.compile(
+    r"^(?:go|navigate|drive|head|move)\s+(?:to|towards?|into)\s+(.+)$", re.IGNORECASE
+)
+
+# "<verb> X to/into/onto/at Y": object/start X, destination Y.
+_A_TO_B_PATTERNS = [
+    re.compile(r"^from\s+(.+?)\s+to\s+(.+)$", re.IGNORECASE),
+    re.compile(r"^move\s+(.+?)\s+(?:to|into|onto|towards?|near)\s+(.+)$", re.IGNORECASE),
+    re.compile(r"^put\s+(.+?)\s+(?:at|in|on|to|into|onto|near)\s+(.+)$", re.IGNORECASE),
+    re.compile(
+        r"^(?:take|bring|push|drag|carry|relocate|send|deliver|guide)\s+(.+?)\s+to\s+(.+)$",
+        re.IGNORECASE,
+    ),
+    re.compile(r"^(.+?)\s+to\s+(.+)$", re.IGNORECASE),   # generic "X to Y"
+]
+
+
+def _clean(text: str) -> str:
+    return _ARTICLE_RE.sub("", text.strip()).strip()
+
+
+def parse_goal(goal: str) -> tuple[str, str]:
+    """Parse a free-form goal into (place_a_text, place_b_text).
+
+    Handles many phrasings, e.g.:
+      "from receiving bay to dock 4"      -> ("receiving bay", "dock 4")
+      "move the red block to the bottom left" -> ("red block", "bottom left")
+      "take the bottle to the sink"       -> ("bottle", "sink")
+      "go to the exit"                    -> ("", "exit")
+
+    An empty start means "default to the image centre" downstream. Leading
+    articles (the/a/an) are stripped so they ground cleanly.
     """
-    if goal is None:
+    if not goal:
         return "", ""
-    match = re.match(r"\s*from\s+(.+?)\s+to\s+(.+?)\s*$", goal, re.IGNORECASE)
-    if match:
-        return match.group(1).strip(), match.group(2).strip()
-    return "", goal.strip()
+    g = goal.strip().rstrip(".!?").strip()
+
+    m = _DEST_ONLY_RE.match(g)
+    if m and " to " not in m.group(1):
+        return "", _clean(m.group(1))
+
+    for pat in _A_TO_B_PATTERNS:
+        m = pat.match(g)
+        if m:
+            return _clean(m.group(1)), _clean(m.group(2))
+
+    return "", _clean(g)
 
 
 def build_parser() -> argparse.ArgumentParser:
