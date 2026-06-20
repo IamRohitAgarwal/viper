@@ -20,10 +20,18 @@ These are commented out in `requirements.txt` (they don't install on the
 local Windows box). On Kaggle:
 
 ```bash
-pip install anthropic transformers accelerate bitsandbytes einops torchvision
+pip install anthropic "transformers==4.45.2" "tokenizers>=0.20,<0.21" \
+    accelerate bitsandbytes einops torchvision
 ```
 
 (`torch` is already present in the Kaggle image.)
+
+> **Pin transformers to 4.45.2.** Molmo-7B-D-0924's modeling code predates
+> newer transformers. With a newer version the 4-bit load fails with
+> `AttributeError: 'MolmoForCausalLM' object has no attribute
+> 'all_tied_weights_keys'`. 4.45.2 is the version Molmo was built against.
+> The pip dependency-resolver warnings about RAPIDS (cudf/cuml/dask-cuda) are
+> cosmetic — VIPER doesn't use those packages.
 
 ## 3. Run
 
