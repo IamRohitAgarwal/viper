@@ -15,6 +15,11 @@ Cheap config tip (SPEC Phase 6): use --backend molmo for pipeline reasoning
 import argparse
 import json
 import os
+import sys
+
+# Allow running as `python scripts/kaggle_run.py` from the repo root: ensure the
+# repo root (parent of scripts/) is importable so `import config` / `src...` work.
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 def _load_anthropic_key():
